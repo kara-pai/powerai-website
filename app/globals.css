@@ -233,10 +233,15 @@ a {
 }
 
 .guide-cover {
+  background: rgba(0, 255, 136, 0.05);
   border-radius: 16px;
-  padding: 30px;
+  padding: 60px 30px;
   text-align: center;
   border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .guide-cover h3 {
@@ -245,8 +250,9 @@ a {
 }
 
 .guide-cover span {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 1rem;
+  color: var(--primary);
+  font-weight: 500;
 }
 
 .guide-content h3 {

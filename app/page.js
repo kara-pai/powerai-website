@@ -25,7 +25,6 @@ export default function Home() {
           
           <div className="guide-card">
             <div className="guide-cover">
-              <h3>How to Hire an AI</h3>
               <span>The practical playbook</span>
             </div>
             <div className="guide-content">
