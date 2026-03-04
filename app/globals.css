@@ -204,7 +204,6 @@ a {
 }
 
 .guide-cover {
-  background: linear-gradient(135deg, var(--secondary), #2a2a4e);
   border-radius: 16px;
   padding: 30px;
   text-align: center;

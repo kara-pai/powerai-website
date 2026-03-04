@@ -54,6 +54,9 @@ export default function RootLayout({ children }) {
             </div>
           </div>
         </footer>
+        {/* ElevenLabs ConvAI Widget */}
+        <elevenlabs-convai agent-id="agent_01jxkz2fxdef9arn6b0mfpnqa1"></elevenlabs-convai>
+        <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
       </body>
     </html>
   )
