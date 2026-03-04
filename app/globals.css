@@ -225,52 +225,39 @@ a {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 40px;
+  padding: 50px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 30px;
   align-items: start;
 }
 
-.guide-cover {
-  background: rgba(0, 255, 136, 0.05);
-  border-radius: 16px;
-  padding: 60px 30px;
+.guide-content {
   text-align: center;
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.guide-cover h3 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-}
-
-.guide-cover span {
-  font-size: 1rem;
-  color: var(--primary);
-  font-weight: 500;
 }
 
 .guide-content h3 {
-  font-size: 2rem;
+  font-size: 2.2rem;
   margin-bottom: 15px;
   color: var(--primary);
 }
 
 .guide-content p {
   color: var(--text-muted);
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .chapters {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .chapter {
@@ -278,6 +265,7 @@ a {
   padding: 15px 20px;
   border-radius: 8px;
   border: 1px solid var(--border);
+  text-align: left;
 }
 
 .chapter-num {
@@ -291,11 +279,18 @@ a {
   margin-top: 5px;
 }
 
+.guide-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
 .price-tag {
   font-size: 2rem;
   font-weight: 700;
   color: var(--primary);
-  margin-right: 15px;
 }
 
 /* Dashboard */

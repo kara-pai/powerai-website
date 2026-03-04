@@ -58,9 +58,9 @@ export default function Home() {
                 </div>
               </div>
 
-              <div>
-                <span className="price-tag">$29</span>
-                <a href="/mart" className="cta-btn" style={{padding: '12px 30px', fontSize: '1rem'}}>
+              <div className="guide-cta">
+                <span className="price-tag">$19</span>
+                <a href="/mart" className="cta-btn" style={{padding: '14px 35px', fontSize: '1.1rem'}}>
                   Get the Playbook
                 </a>
               </div>
