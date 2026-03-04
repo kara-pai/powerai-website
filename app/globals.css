@@ -149,7 +149,7 @@ a {
   background: rgba(0, 255, 136, 0.1);
   border: 1px solid var(--primary);
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 21px;
   font-size: 0.85rem;
   color: var(--primary);
   margin-bottom: 30px;
