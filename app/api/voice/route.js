@@ -1,13 +1,18 @@
 // Voice webhook API route for Twilio
 // This handles incoming voice calls and responds with AI-generated speech
+import { NextResponse } from 'next/server'
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
+export const dynamic = 'force-dynamic'
 
-  // Twilio expects XML response (TwiML)
-  const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
+export async function POST(request) {
+  try {
+    const formData = await request.formData()
+    const body = Object.fromEntries(formData)
+    
+    console.log('Voice webhook received:', body)
+    
+    // Twilio expects XML response (TwiML)
+    const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Gather input="speech" action="/api/voice/handle" speechTimeout="5" enhanced="true">
     <Say voice="Google.en-US-Neural2-F">
@@ -23,6 +28,15 @@ export default async function handler(req, res) {
   </Say>
 </Response>`
 
-  res.setHeader('Content-Type', 'text/xml')
-  res.status(200).send(twimlResponse)
+    return new NextResponse(twimlResponse, {
+      headers: { 'Content-Type': 'text/xml' }
+    })
+  } catch (error) {
+    console.error('Voice API error:', error)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+  }
+}
+
+export async function GET() {
+  return NextResponse.json({ status: 'Voice API ready' })
 }
