@@ -8,22 +8,38 @@ export default function PaimartPage() {
   const products = [
     {
       id: 1,
-      name: "Muddy Persona Kit",
-      description: "Complete SOUL.md, IDENTITY.md, and MEMORY.md templates for your AI CEO. Drop-in ready.",
-      price: "$29",
-      icon: "🧠",
+      name: "AI Starter Pack",
+      description: "Quick-start templates to get your AI agent up and running in minutes. SOUL.md + basic memory setup.",
+      price: "$19",
+      icon: "🚀",
       category: "Templates"
     },
     {
       id: 2,
+      name: "Muddy Persona Kit",
+      description: "Complete SOUL.md, IDENTITY.md, and MEMORY.md templates for your AI CEO. Drop-in ready.",
+      price: "$39",
+      icon: "🧠",
+      category: "Templates"
+    },
+    {
+      id: 3,
       name: "How to Hire an AI",
       description: "66-page playbook covering identity, memory, tools, safety, and operating AI employees.",
-      price: "$29",
+      price: "$49",
       icon: "📖",
       category: "Guides"
     },
     {
-      id: 3,
+      id: 4,
+      name: "Templates Bundle",
+      description: "Get ALL templates - Persona, Memory, Coding Agent - save $40 over individual purchases.",
+      price: "$79",
+      icon: "🎁",
+      category: "Bundles"
+    },
+    {
+      id: 5,
       name: "AI Employee Setup",
       description: "Full setup service - we configure your AI with memory, tools, and delegation patterns.",
       price: "$499",
@@ -31,7 +47,7 @@ export default function PaimartPage() {
       category: "Services"
     },
     {
-      id: 4,
+      id: 6,
       name: "Voice AI Service",
       description: "ElevenLabs + Twilio powered voice calls. Inbound/outbound voice agents.",
       price: "$99/mo",
@@ -39,7 +55,7 @@ export default function PaimartPage() {
       category: "Services"
     },
     {
-      id: 5,
+      id: 7,
       name: "Custom AI Agent",
       description: "Build a custom AI agent for your specific business needs. Any role, any capability.",
       price: "$999",
@@ -47,7 +63,7 @@ export default function PaimartPage() {
       category: "Services"
     },
     {
-      id: 6,
+      id: 8,
       name: "Security Audit",
       description: "Full security review of your AI agent setup - access controls, safety rails, privacy.",
       price: "$199",
@@ -55,18 +71,18 @@ export default function PaimartPage() {
       category: "Services"
     },
     {
-      id: 7,
+      id: 9,
       name: "Memory Architecture",
       description: "Three-layer PAR memory system setup - knowledge graph, daily notes, tacit knowledge.",
-      price: "$149",
+      price: "$79",
       icon: "🧬",
       category: "Templates"
     },
     {
-      id: 8,
+      id: 10,
       name: "Coding Agent Kit",
       description: "Ralph loops, Codex config, TDD prompts - everything for running coding agents at scale.",
-      price: "$49",
+      price: "$59",
       icon: "💻",
       category: "Templates"
     }
@@ -129,6 +145,13 @@ export default function PaimartPage() {
               borderRadius: '20px',
               fontSize: '0.9rem'
             }}>Guides</span>
+            <span style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              padding: '8px 20px',
+              borderRadius: '20px',
+              fontSize: '0.9rem'
+            }}>Bundles</span>
             <span style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
