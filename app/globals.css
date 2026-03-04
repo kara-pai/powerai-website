@@ -224,7 +224,7 @@ a {
 .guide-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 21px;
   padding: 50px;
   display: grid;
   grid-template-columns: 1fr;
@@ -441,7 +441,7 @@ a {
 .product-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 21px;
   overflow: hidden;
   transition: all 0.3s;
 }
@@ -616,7 +616,7 @@ a {
 .treasury-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 21px;
   padding: 25px;
   text-align: center;
 }
@@ -751,7 +751,7 @@ body {
 
 /* Rounded card improvements */
 .metric-card, .treasury-card, .dashboard-card, .product-card, .token-stat, .guide-card {
-  border-radius: 20px !important;
+  border-radius: 21px !important;
   padding: 30px;
 }
 
