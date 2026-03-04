@@ -15,8 +15,8 @@ export default function RootLayout({ children }) {
             <ul className="nav-links">
               <li><a href="/">Home</a></li>
               <li><a href="/dashboard">Dashboard</a></li>
+              <li><a href="/hire">Hire AI</a></li>
               <li><a href="/token">$PowerAI</a></li>
-              <li><a href="/poweraix">@PowerAiX</a></li>
               <li><a href="/mart">PAI Mart</a></li>
             </ul>
             <a href="/dashboard" className="connect-btn">View Dashboard</a>
@@ -32,6 +32,7 @@ export default function RootLayout({ children }) {
                   <li><a href="/">Home</a></li>
                   <li><a href="/dashboard">Dashboard</a></li>
                   <li><a href="/token">$PowerAI</a></li>
+                  <li><a href="/hire">Hire AI</a></li>
                 </ul>
               </div>
               <div>
