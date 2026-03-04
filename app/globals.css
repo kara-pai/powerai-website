@@ -305,8 +305,9 @@ a {
 .dashboard-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 30px;
+  box-shadow: none;
 }
 
 .dashboard-card h4 {
@@ -580,13 +581,15 @@ a {
 .metric-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 25px;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
+  box-shadow: none;
 }
 
 .metric-card:hover {
   border-color: var(--primary);
+  transform: translateY(-2px);
 }
 
 .metric-label {
