@@ -1,8 +1,6 @@
 import Stripe from 'stripe';
-import { readFileSync } from 'fs';
 
-const stripeSecretKey = readFileSync('/home/karaai/.openclaw/secure/stripe-secret.key', 'utf8').trim();
-const stripe = new Stripe(stripeSecretKey);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(request) {
   const body = await request.json();
