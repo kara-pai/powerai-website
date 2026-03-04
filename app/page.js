@@ -23,10 +23,7 @@ export default function Home() {
             PDF Guide — 66 Pages · Updated March 2026
           </p>
           
-          <div className="guide-card">
-            <div className="guide-cover">
-              <span>The practical playbook</span>
-            </div>
+          <div className="guide-card" style={{gridTemplateColumns: '1fr'}}>
             <div className="guide-content">
               <h3>How to Hire an AI</h3>
               <p>

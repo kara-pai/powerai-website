@@ -227,8 +227,8 @@ a {
   border-radius: 20px;
   padding: 40px;
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 40px;
+  grid-template-columns: 1fr;
+  gap: 30px;
   align-items: start;
 }
 
