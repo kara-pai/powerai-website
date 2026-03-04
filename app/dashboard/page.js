@@ -9,16 +9,7 @@ export default function Dashboard() {
     { day: 'Sun', amount: 247 }
   ]
   
-  const maxAmount = Math.max(...revenueData.map(d => d.amount))
-  const graphHeight = 200
-  
-  const points = revenueData.map((d, i) => {
-    const x = (i / (revenueData.length - 1)) * 100
-    const y = graphHeight - (d.amount / maxAmount) * graphHeight
-    return x + '% ' + y
-  }).join(' ')
-  
-  const areaPoints = '0% ' + graphHeight + ' ' + points + ' 100% ' + graphHeight
+  const maxAmount = 300 // Set max for consistent scaling
 
   return (
     <main style={{paddingTop: '80px'}}>
@@ -29,48 +20,38 @@ export default function Dashboard() {
             Live business metrics — revenue, crypto treasury, and $PowerAI token stats.
           </p>
           
+          {/* Column Chart */}
           <div className="dashboard-card" style={{marginBottom: '40px', padding: '30px'}}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px'}}>
               <h3 style={{fontSize: '1.3rem'}}>Revenue This Week</h3>
               <div style={{color: 'var(--primary)', fontWeight: '600'}}>+18% vs last week</div>
             </div>
             
-            <div style={{position: 'relative', height: '250px', marginBottom: '20px'}}>
-              <svg viewBox="0 0 100 220" preserveAspectRatio="none" style={{width: '100%', height: '100%', overflow: 'visible'}}>
-                <line x1="0%" y1="25%" x2="100%" y2="25%" stroke="var(--border)" strokeWidth="0.5" strokeDasharray="2" />
-                <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="var(--border)" strokeWidth="0.5" strokeDasharray="2" />
-                <line x1="0%" y1="75%" x2="100%" y2="75%" stroke="var(--border)" strokeWidth="0.5" strokeDasharray="2" />
-                <polygon points={areaPoints} fill="url(#gradient)" opacity="0.3" />
-                <polyline points={points} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-                {revenueData.map((d, i) => {
-                  const x = (i / (revenueData.length - 1)) * 100
-                  const y = graphHeight - (d.amount / maxAmount) * graphHeight
-                  return (
-                    <g key={i}>
-                      <circle cx={x + '%'} cy={y} r="3" fill="var(--bg)" stroke="var(--primary)" strokeWidth="2" />
-                      <circle cx={x + '%'} cy={y} r="6" fill="var(--primary)" opacity="0.3" />
-                    </g>
-                  )
-                })}
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="var(--primary)" />
-                    <stop offset="100%" stopColor="transparent" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            
-            <div style={{display: 'flex', justifyContent: 'space-between', padding: '0 5%'}}>
-              {revenueData.map((d, i) => (
-                <div key={i} style={{textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)'}}>
-                  <div style={{fontWeight: '600', color: 'var(--primary)'}}>${d.amount}</div>
-                  <div>{d.day}</div>
-                </div>
-              ))}
+            {/* Bar Chart */}
+            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '200px', gap: '10px', padding: '0 10px'}}>
+              {revenueData.map((d, i) => {
+                const heightPercent = (d.amount / maxAmount) * 100
+                return (
+                  <div key={i} style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%'}}>
+                    <div style={{fontWeight: '600', color: 'var(--primary)', marginBottom: '8px'}}>${d.amount}</div>
+                    <div style={{
+                      width: '100%',
+                      maxWidth: '50px',
+                      height: heightPercent + '%',
+                      minHeight: '20px',
+                      background: 'linear-gradient(180deg, var(--primary) 0%, rgba(0,255,136,0.3) 100%)',
+                      borderRadius: '8px 8px 0 0',
+                      animation: 'glowPulse 2s ease-in-out infinite',
+                      animationDelay: (i * 0.15) + 's'
+                    }}></div>
+                    <div style={{marginTop: '10px', fontSize: '0.8rem', color: 'var(--text-muted)'}}>{d.day}</div>
+                  </div>
+                )
+              })}
             </div>
           </div>
           
+          {/* Revenue Metrics */}
           <div className="metrics-grid">
             <div className="metric-card">
               <div className="metric-label">Revenue (7d)</div>
