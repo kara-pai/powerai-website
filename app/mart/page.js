@@ -1,4 +1,10 @@
+'use client';
+
+import { useState } from 'react';
+
 export default function PaimartPage() {
+  const [loading, setLoading] = useState(null);
+
   const products = [
     {
       id: 1,
@@ -64,7 +70,32 @@ export default function PaimartPage() {
       icon: "💻",
       category: "Templates"
     }
-  ]
+  ];
+
+  const handleBuy = async (product) => {
+    setLoading(product.id);
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: product.id,
+          productName: product.name,
+          price: product.price
+        })
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error starting checkout');
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <main style={{paddingTop: '80px'}}>
@@ -121,7 +152,13 @@ export default function PaimartPage() {
                   <h3>{product.name}</h3>
                   <p>{product.description}</p>
                   <div className="product-price">{product.price}</div>
-                  <button className="product-btn">Buy Now</button>
+                  <button 
+                    className="product-btn"
+                    onClick={() => handleBuy(product)}
+                    disabled={loading === product.id}
+                  >
+                    {loading === product.id ? 'Processing...' : 'Buy Now'}
+                  </button>
                 </div>
               </div>
             ))}
@@ -129,5 +166,5 @@ export default function PaimartPage() {
         </div>
       </section>
     </main>
-  )
+  );
 }
