@@ -26,7 +26,7 @@ export default function PaimartPage() {
       id: 3,
       name: "How to Hire an AI",
       description: "66-page playbook covering identity, memory, tools, safety, and operating AI employees.",
-      price: "$49",
+      price: "$19",
       icon: "📖",
       category: "Guides"
     },
