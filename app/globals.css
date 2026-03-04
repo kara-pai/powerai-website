@@ -629,3 +629,92 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* Animated Gradient Background */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  background: linear-gradient(-45deg, #0a0a0f, #12121a, #1a1a2e, #0f0f1a);
+  background-size: 400% 400%;
+  animation: gradientMove 15s ease infinite;
+}
+
+/* Card Hover Effects */
+.dashboard-card, .metric-card, .treasury-card, .product-card, .guide-card, .chapter, .token-stat {
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover, .metric-card:hover, .treasury-card:hover, .product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 40px rgba(0, 255, 136, 0.15);
+  border-color: var(--primary);
+}
+
+/* Glow Pulse Animation (Heartbeat) */
+@keyframes glowPulse {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(0, 255, 136, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.6), 0 0 40px rgba(0, 255, 136, 0.3);
+  }
+}
+
+.metric-card .metric-value, .treasury-card .treasury-amount {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Staggered animation for grid items */
+.metric-card:nth-child(1) { animation-delay: 0s; }
+.metric-card:nth-child(2) { animation-delay: 0.1s; }
+.metric-card:nth-child(3) { animation-delay: 0.2s; }
+.metric-card:nth-child(4) { animation-delay: 0.3s; }
+
+.treasury-card:nth-child(1) { animation-delay: 0s; }
+.treasury-card:nth-child(2) { animation-delay: 0.15s; }
+.treasury-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* Hero glow effect */
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Status badge pulse */
+.status-badge {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Button glow on hover */
+.cta-btn:hover {
+  box-shadow: 0 0 30px rgba(255, 51, 102, 0.5);
+}
+
+.connect-btn:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+/* Navbar glow */
+.navbar {
+  box-shadow: 0 2px 20px rgba(0, 255, 136, 0.1);
+}
