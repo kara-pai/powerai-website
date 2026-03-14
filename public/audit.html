@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Automation Audit — PowerAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #8B5CF6;
+    --primary-light: #A78BFA;
+    --primary-dim: rgba(139,92,246,0.12);
+    --cyan: #22D3EE;
+    --cyan-dim: rgba(34,211,238,0.10);
+    --grad: linear-gradient(135deg, #8B5CF6, #6366F1, #22D3EE);
+    --grad-soft: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(34,211,238,0.08));
+    --dark: #030307;
+    --dark-2: #0C0C14;
+    --dark-3: #12121C;
+    --dark-4: #1A1A28;
+    --dark-5: #222234;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(139,92,246,0.3);
+    --text: #F0F0FF;
+    --text-muted: #6B6B8A;
+    --green: #34D399;
+    --blue: #60A5FA;
+    --pink: #F472B6;
+    --orange: #FB923C;
+    --yellow: #FBBF24;
+    --red: #F87171;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Ubuntu', 'DM Mono', monospace;
+    background: var(--dark);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(139,92,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139,92,246,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20%; left: 20%; width: 60%; height: 50%;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.06) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── 3D MAP SECTION ── */
+  .map-section {
+    position: relative; z-index: 10;
+    margin: 0 48px 32px;
+    perspective: 1200px;
+  }
+  .map-section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .map-section-title::before {
+    content: ''; width: 24px; height: 2px;
+    background: var(--grad); display: block;
+  }
+  .map-container {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-bright);
+    background: var(--dark-2);
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+    cursor: grab;
+  }
+  .map-container::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--grad);
+    z-index: 5;
+  }
+  .map-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .map-overlay {
+    position: absolute;
+    bottom: 16px; left: 16px;
+    background: rgba(12,12,20,0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .map-overlay-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: var(--primary-light);
+    margin-bottom: 4px;
+    letter-spacing: 0.08em;
+  }
+  .map-overlay-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .map-glow-dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan), 0 0 24px rgba(34,211,238,0.3);
+    z-index: 4;
+    animation: mapPulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .map-glow-dot:nth-child(2) { animation-delay: 0.5s; }
+  .map-glow-dot:nth-child(3) { animation-delay: 1s; }
+  .map-glow-dot:nth-child(4) { animation-delay: 1.5s; }
+  .map-glow-dot:nth-child(5) { animation-delay: 2s; }
+  @keyframes mapPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.8); opacity: 0.3; }
+  }
+  .map-label {
+    position: absolute;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--primary-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.7;
+    text-shadow: 0 0 8px rgba(139,92,246,0.5);
+  }
+  .map-connection {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 10;
+    padding: 36px 48px 0;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
+  }
+  .logo-block { display: flex; align-items: center; gap: 14px; }
+  .logo-icon { width: 40px; height: 40px; flex-shrink: 0; }
+  .logo-text-wrap { display: flex; flex-direction: column; gap: 2px; }
+  .logo-tag {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em;
+    color: var(--primary-light); text-transform: uppercase; opacity: 0.7;
+  }
+  .logo-name {
+    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+    letter-spacing: -0.02em; background: var(--grad);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .header-actions { display: flex; gap: 12px; align-items: center; }
+  .btn-ghost {
+    font-family: 'Ubuntu', sans-serif; font-size: 11px; letter-spacing: 0.08em;
+    padding: 9px 18px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary-light); }
+  .btn-primary {
+    font-family: 'Ubuntu', sans-serif; font-size: 11px; letter-spacing: 0.08em;
+    padding: 9px 18px; border-radius: 6px; border: none;
+    background: var(--grad); color: white; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  /* ── HERO ── */
+  .hero {
+    position: relative; z-index: 10;
+    padding: 56px 48px 36px; max-width: 900px;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--primary-light); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; opacity: 0.8;
+  }
+  .hero-eyebrow::before {
+    content: ''; width: 32px; height: 1px; background: var(--grad); display: block; opacity: 0.6;
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif; font-size: clamp(30px, 5vw, 52px); font-weight: 800;
+    line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 20px;
+  }
+  .hero-title em {
+    font-style: italic; font-family: 'Instrument Serif', serif;
+    background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-sub { font-size: 13px; color: var(--text-muted); line-height: 1.75; max-width: 620px; font-family: 'Ubuntu', sans-serif; }
+  /* ── AUDIT SCORE DASHBOARD ── */
+  .score-dashboard {
+    position: relative; z-index: 10;
+    margin: 0 48px 32px;
+    display: grid; grid-template-columns: 200px 1fr; gap: 20px;
+  }
+  .score-main-card {
+    background: var(--dark-2); border: 1px solid var(--border-bright); border-radius: 16px;
+    padding: 28px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .score-main-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--grad);
+  }
+  .score-ring-big { width: 100px; height: 100px; position: relative; margin-bottom: 12px; }
+  .score-ring-big svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .score-ring-big .score-num-big {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+  }
+  .score-pct-big { font-size: 26px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .score-label-small { font-size: 8px; letter-spacing: 0.12em; color: var(--text-muted); text-transform: uppercase; }
+  .score-title-main {
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+    color: var(--text); margin-bottom: 4px; text-align: center;
+  }
+  .score-status-main { font-size: 10px; color: var(--text-muted); text-align: center; }
+  .score-metrics-grid {
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 16px;
+    padding: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    position: relative; overflow: hidden;
+  }
+  .score-metrics-grid::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: linear-gradient(90deg, var(--cyan), var(--primary));
+  }
+  .metric-item { display: flex; flex-direction: column; gap: 6px; }
+  .metric-val {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px;
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .metric-unit { font-size: 12px; font-weight: 600; opacity: 0.7; }
+  .metric-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
+  .metric-bar { height: 3px; background: var(--dark-4); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .metric-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  /* ── PROGRESS RAIL ── */
+  .progress-rail {
+    position: relative; z-index: 10; margin: 0 48px;
+    padding: 20px 0; display: flex; align-items: center; gap: 0;
+    overflow-x: auto;
+  }
+  .progress-step {
+    flex: 1; min-width: 80px; display: flex; flex-direction: column;
+    align-items: center; gap: 8px; position: relative; cursor: pointer;
+  }
+  .progress-step::before {
+    content: ''; position: absolute; top: 14px; left: 50%; width: 100%;
+    height: 1px; background: var(--border); z-index: -1;
+  }
+  .progress-step:last-child::before { display: none; }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--dark-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500; color: var(--text-muted);
+    transition: all 0.3s; position: relative; z-index: 1;
+  }
+  .progress-step.active .step-dot {
+    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+    border-color: var(--primary); color: white;
+    box-shadow: 0 0 18px rgba(139,92,246,0.5);
+  }
+  .progress-step.done .step-dot { background: var(--green); border-color: var(--green); color: var(--dark); }
+  .step-label {
+    font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); text-align: center; white-space: nowrap;
+  }
+  .progress-step.active .step-label { color: var(--primary-light); }
+  .progress-step.done .step-label { color: var(--green); }
+  /* ── SECTIONS ── */
+  .sections-wrap {
+    position: relative; z-index: 10; padding: 0 48px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .section-card {
+    background: var(--dark-2); border: 1px solid var(--border);
+    border-radius: 16px; margin-bottom: 14px; overflow: hidden; transition: border-color 0.3s;
+  }
+  .section-card.active { border-color: var(--border-bright); }
+  .section-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 24px; cursor: pointer; user-select: none;
+  }
+  .section-num {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; flex-shrink: 0;
+  }
+  .section-meta { flex: 1; }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+    color: var(--text); margin-bottom: 2px;
+  }
+  .section-desc { font-size: 10px; color: var(--text-muted); letter-spacing: 0.05em; }
+  .section-toggle { font-size: 18px; color: var(--text-muted); transition: transform 0.3s; }
+  .section-card.open .section-toggle { transform: rotate(90deg); color: var(--primary-light); }
+  .section-body {
+    display: none; padding: 0 24px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .section-card.open .section-body { display: block; }
+  /* ── QUESTION BLOCKS ── */
+  .question-block {
+    margin-top: 20px; display: flex; gap: 16px;
+    animation: fadeUp 0.4s ease both;
+  }
+  .question-block:nth-child(2) { animation-delay: 0.05s; }
+  .question-block:nth-child(3) { animation-delay: 0.1s; }
+  .question-block:nth-child(4) { animation-delay: 0.15s; }
+  .question-block:nth-child(5) { animation-delay: 0.2s; }
+  .question-block:nth-child(6) { animation-delay: 0.25s; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .q-accent { width: 3px; border-radius: 3px; flex-shrink: 0; align-self: stretch; min-height: 40px; }
+  .q-content { flex: 1; }
+  .q-label {
+    font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .q-tag {
+    background: var(--dark-4); border: 1px solid var(--border); border-radius: 4px;
+    padding: 1px 6px; font-size: 8px; letter-spacing: 0.1em;
+  }
+  .q-text {
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600;
+    color: var(--text); line-height: 1.4; margin-bottom: 10px;
+  }
+  .q-hint {
+    font-size: 10px; color: var(--text-muted); font-style: italic;
+    margin-bottom: 10px; line-height: 1.6; font-family: 'Instrument Serif', serif;
+  }
+  .q-input {
+    width: 100%; background: var(--dark-3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; font-family: 'Ubuntu', sans-serif;
+    font-size: 12px; color: var(--text); resize: vertical; min-height: 56px;
+    transition: border-color 0.2s, box-shadow 0.2s; line-height: 1.6;
+  }
+  .q-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+  .q-input::placeholder { color: var(--text-muted); font-style: italic; }
+  .q-input-row { display: flex; gap: 12px; align-items: center; }
+  .q-input-num {
+    background: var(--dark-3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; font-family: 'Ubuntu', sans-serif; font-size: 14px; font-weight: 500;
+    color: var(--text); width: 120px; text-align: center; transition: border-color 0.2s;
+  }
+  .q-input-num:focus { outline: none; border-color: var(--primary); }
+  .q-input-unit { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .chip {
+    font-family: 'Ubuntu', sans-serif; font-size: 10px; padding: 6px 14px;
+    border-radius: 20px; border: 1px solid var(--border); background: var(--dark-3);
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s; user-select: none;
+  }
+  .chip:hover { border-color: var(--primary); color: var(--primary-light); }
+  .chip.selected { background: var(--primary-dim); border-color: var(--primary); color: var(--primary-light); }
+  .rating-scale { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .rating-btn {
+    width: 44px; height: 44px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--dark-3);
+    color: var(--text-muted); cursor: pointer; font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rating-btn:hover { border-color: var(--primary); color: var(--primary-light); }
+  .rating-btn.selected { background: var(--primary-dim); border-color: var(--primary); color: var(--primary-light); box-shadow: 0 0 12px rgba(139,92,246,0.3); }
+  .rating-labels { display: flex; justify-content: space-between; margin-top: 6px; }
+  .rating-label-text { font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em; }
+  .substep-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .substep-row { display: grid; grid-template-columns: 28px 1fr auto auto; gap: 10px; align-items: flex-start; }
+  .substep-num {
+    width: 28px; height: 28px; border-radius: 6px; background: var(--dark-4);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--text-muted); flex-shrink: 0; margin-top: 2px;
+  }
+  .substep-input {
+    flex: 1; background: var(--dark-3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; font-family: 'Ubuntu', sans-serif; font-size: 11px; color: var(--text);
+    transition: border-color 0.2s; width: 100%;
+  }
+  .substep-input:focus { outline: none; border-color: var(--primary); }
+  .substep-input::placeholder { color: var(--text-muted); font-style: italic; }
+  .substep-time {
+    background: var(--dark-3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-family: 'Ubuntu', sans-serif; font-size: 11px; color: var(--text);
+    transition: border-color 0.2s; width: 80px; text-align: center;
+  }
+  .substep-time:focus { outline: none; border-color: var(--cyan); }
+  .substep-time::placeholder { color: var(--text-muted); font-style: italic; font-size: 9px; }
+  .substep-auto {
+    background: var(--dark-4); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-family: 'Ubuntu', sans-serif; font-size: 9px; color: var(--text-muted);
+    transition: all 0.2s; width: 70px; text-align: center; cursor: pointer; user-select: none;
+  }
+  .substep-auto:hover { border-color: var(--green); color: var(--green); }
+  .substep-auto.automatable { background: rgba(52,211,153,0.1); border-color: var(--green); color: var(--green); }
+  .substep-col-labels { display: grid; grid-template-columns: 28px 1fr 80px 70px; gap: 10px; margin-bottom: 6px; }
+  .substep-col-label { font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); padding-left: 4px; }
+  .add-step-btn {
+    margin-top: 8px; font-family: 'Ubuntu', sans-serif; font-size: 10px; letter-spacing: 0.08em;
+    color: var(--primary-light); background: none; border: 1px dashed rgba(139,92,246,0.3);
+    border-radius: 6px; padding: 6px 14px; cursor: pointer; transition: all 0.2s;
+    width: 100%; text-align: center;
+  }
+  .add-step-btn:hover { background: var(--primary-dim); border-style: solid; }
+  .dept-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+  .dept-row { background: var(--dark-3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .dept-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .dept-name { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .dept-badge { font-size: 8px; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .dept-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .dept-field label { display: block; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .dept-field .q-input { min-height: 36px; padding: 8px 12px; }
+  .q-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  .q-row .q-content { margin: 0; }
+  .priority-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .matrix-cell { background: var(--dark-3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; min-height: 100px; }
+  .matrix-cell-title { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .matrix-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .matrix-cell .q-input { min-height: 70px; background: var(--dark-4); font-size: 11px; }
+  .section-sep { display: flex; align-items: center; gap: 12px; padding: 6px 0; color: var(--text-muted); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .section-sep::before, .section-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .generate-wrap { position: relative; z-index: 10; padding: 32px 48px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .btn-generate {
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+    padding: 16px 36px; border-radius: 10px; border: none;
+    background: var(--grad); color: white; cursor: pointer; transition: all 0.3s;
+    letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px;
+  }
+  .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(139,92,246,0.4); }
+  .btn-generate:active { transform: translateY(0); }
+  .btn-clear {
+    font-family: 'Ubuntu', sans-serif; font-size: 11px; padding: 16px 24px;
+    border-radius: 10px; border: 1px solid var(--border); background: transparent;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .btn-clear:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+  .btn-export {
+    font-family: 'Ubuntu', sans-serif; font-size: 11px; padding: 16px 24px;
+    border-radius: 10px; border: 1px solid rgba(34,211,238,0.3); background: transparent;
+    color: var(--cyan); cursor: pointer; transition: all 0.2s;
+  }
+  .btn-export:hover { background: var(--cyan-dim); }
+  .output-panel {
+    position: relative; z-index: 10;
+    background: var(--dark-2); border: 1px solid var(--border-bright);
+    border-radius: 16px; margin: 0 48px 48px; overflow: hidden; display: none;
+  }
+  .output-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--grad); }
+  .output-panel.visible { display: block; }
+  .output-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); }
+  .output-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .output-body { padding: 24px; font-size: 12px; line-height: 1.8; color: var(--text); white-space: pre-wrap; font-family: 'DM Mono', monospace; max-height: 700px; overflow-y: auto; }
+  .output-actions { display: flex; gap: 10px; }
+  .completeness-bar {
+    position: fixed; bottom: 32px; right: 32px; z-index: 100;
+    background: var(--dark-2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6); min-width: 200px;
+  }
+  .score-ring { width: 44px; height: 44px; position: relative; flex-shrink: 0; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle { fill: none; stroke-width: 3; }
+  .score-track { stroke: var(--dark-5); }
+  .score-fill { stroke: url(#scoreGrad); stroke-linecap: round; stroke-dasharray: 113; stroke-dashoffset: 113; transition: stroke-dashoffset 0.6s ease; }
+  .score-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .score-info { display: flex; flex-direction: column; gap: 2px; }
+  .score-info-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
+  .score-status { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; color: var(--text); }
+  .saving-calc-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .saving-cell { background: var(--dark-3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .saving-cell-label { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .saving-cell-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .saving-cell-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  @media (max-width: 700px) {
+    header, .hero, .score-dashboard, .progress-rail, .sections-wrap, .generate-wrap, .output-panel, .map-section { padding-left: 20px; padding-right: 20px; margin-left: 0; margin-right: 0; }
+    .score-dashboard { grid-template-columns: 1fr; }
+    .score-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .q-row { grid-template-columns: 1fr; }
+    .dept-fields { grid-template-columns: 1fr; }
+    .saving-calc-row { grid-template-columns: 1fr; }
+    .substep-row { grid-template-columns: 28px 1fr; }
+    .substep-time, .substep-auto { display: none; }
+    .map-container { height: 300px; }
+  }
+</style>
+</head>
+<body>
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo-block">
+    <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="10" fill="url(#lg1)"/>
+      <rect x="10" y="10" width="20" height="16" rx="4" stroke="white" stroke-width="1.5"/>
+      <circle cx="15" cy="18" r="2" fill="white"/>
+      <circle cx="25" cy="18" r="2" fill="white"/>
+      <path d="M15 26v4M25 26v4M12 30h16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="lg1" x1="0" y1="0" x2="40" y2="40">
+          <stop offset="0%" stop-color="#8B5CF6"/>
+          <stop offset="100%" stop-color="#22D3EE"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="logo-text-wrap">
+      <span class="logo-tag">AI Automation</span>
+      <span class="logo-name">PowerAI</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-ghost" onclick="clearAll()">Reset</button>
+    <button class="btn-primary" onclick="generateAudit()">Generate Audit Report</button>
+  </div>
+</header>
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow">AI Automation Audit</div>
+  <h1 class="hero-title">
+    Find what can be <em>automated</em>,<br>and how much time you save.
+  </h1>
+  <p class="hero-sub">
+    This deep-dive audit maps every workflow in your business, identifies automation opportunities, and calculates your estimated time and cost savings. Fill in each section honestly — the more detail, the sharper the result.
+  </p>
+</div>
+
+<!-- ── 3D ANIMATED MAP ── -->
+<div class="map-section">
+  <div class="map-section-title">Global Automation Network</div>
+  <div class="map-container" id="mapContainer">
+    <canvas class="map-canvas" id="mapCanvas"></canvas>
+    <div class="map-glow-dot" style="top: 28%; left: 18%;"></div>
+    <div class="map-glow-dot" style="top: 22%; left: 48%;"></div>
+    <div class="map-glow-dot" style="top: 35%; left: 75%;"></div>
+    <div class="map-glow-dot" style="top: 60%; left: 25%;"></div>
+    <div class="map-glow-dot" style="top: 55%; left: 82%;"></div>
+    <div class="map-label" style="top: 25%; left: 13%;">North America</div>
+    <div class="map-label" style="top: 18%; left: 44%;">Europe</div>
+    <div class="map-label" style="top: 30%; left: 70%;">Asia Pacific</div>
+    <div class="map-label" style="top: 55%; left: 20%;">South America</div>
+    <div class="map-label" style="top: 50%; left: 78%;">Australia</div>
+    <div class="map-overlay">
+      <div class="map-overlay-title">PowerAI Network</div>
+      <div class="map-overlay-text">
+        2,400+ businesses automated globally<br>
+        Move mouse to explore the 3D map
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCORE DASHBOARD ── -->
+<div class="score-dashboard">
+  <div class="score-main-card">
+    <div class="score-ring-big">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="bigScoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#8B5CF6"/>
+            <stop offset="100%" stop-color="#22D3EE"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="42" class="score-track" stroke-width="6"/>
+        <circle id="bigScoreFill" cx="50" cy="50" r="42" class="score-fill"
+          fill="none" stroke="url(#bigScoreGrad)" stroke-width="6"
+          stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" style="transition: stroke-dashoffset 0.6s ease;"/>
+      </svg>
+      <div class="score-num-big">
+        <span class="score-pct-big" id="bigScoreNum">0%</span>
+        <span class="score-label-small">complete</span>
+      </div>
+    </div>
+    <div class="score-title-main">Audit Score</div>
+    <div class="score-status-main" id="bigScoreStatus">Not started</div>
+  </div>
+  <div class="score-metrics-grid">
+    <div class="metric-item">
+      <div class="metric-val" style="color: var(--green)"><span id="metricHrsSaved">0</span><span class="metric-unit">h</span></div>
+      <div class="metric-label">Est. Hours Saved / week</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="barHrs" style="width:0%; background: var(--green);"></div></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-val" style="color: var(--cyan)">$<span id="metricSaving">0</span></div>
+      <div class="metric-label">Est. Monthly Saving</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="barSaving" style="width:0%; background: var(--cyan);"></div></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-val" style="color: var(--orange)"><span id="metricOpps">0</span></div>
+      <div class="metric-label">Automation Opportunities</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="barOpps" style="width:0%; background: var(--orange);"></div></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-val" style="color: var(--primary-light)"><span id="metricROI">0</span><span class="metric-unit">x</span></div>
+      <div class="metric-label">Projected ROI (12mo)</div>
+      <div class="metric-bar"><div class="metric-bar-fill" id="barROI" style="width:0%; background: var(--primary);"></div></div>
+    </div>
+  </div>
+</div>
+<!-- ── PROGRESS RAIL ── -->
+<div class="progress-rail">
+  <div class="progress-step active" onclick="scrollToSection(0)"><div class="step-dot">1</div><div class="step-label">Business</div></div>
+  <div class="progress-step" onclick="scrollToSection(1)"><div class="step-dot">2</div><div class="step-label">Workflows</div></div>
+  <div class="progress-step" onclick="scrollToSection(2)"><div class="step-dot">3</div><div class="step-label">Departments</div></div>
+  <div class="progress-step" onclick="scrollToSection(3)"><div class="step-dot">4</div><div class="step-label">People & Time</div></div>
+  <div class="progress-step" onclick="scrollToSection(4)"><div class="step-dot">5</div><div class="step-label">Tech Stack</div></div>
+  <div class="progress-step" onclick="scrollToSection(5)"><div class="step-dot">6</div><div class="step-label">Pain Points</div></div>
+  <div class="progress-step" onclick="scrollToSection(6)"><div class="step-dot">7</div><div class="step-label">Priorities</div></div>
+  <div class="progress-step" onclick="scrollToSection(7)"><div class="step-dot">8</div><div class="step-label">Budget & ROI</div></div>
+</div>
+<!-- ── SECTIONS ── -->
+<div class="sections-wrap">
+  <!-- SECTION 1: BUSINESS OVERVIEW -->
+  <div class="section-card open" id="sec0">
+    <div class="section-header" onclick="toggleSection(0)">
+      <div class="section-num" style="background: rgba(139,92,246,0.15); color: var(--primary-light);">01</div>
+      <div class="section-meta">
+        <div class="section-title">Business Overview</div>
+        <div class="section-desc">Who you are, what you do, and how you operate today</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--primary);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q1.1</span> REQUIRED</div>
+          <div class="q-text">Business name and what industry are you in?</div>
+          <textarea class="q-input" id="q1_1" rows="2" placeholder="e.g. Smith Plumbing – residential plumbing & gas fitting in Melbourne suburbs"></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--primary);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q1.2</span> REQUIRED</div>
+          <div class="q-text">How long have you been operating, and how many staff (including yourself)?</div>
+          <div class="q-row" style="margin-top: 0;">
+            <div><textarea class="q-input" id="q1_years" rows="1" placeholder="e.g. 6 years in business"></textarea></div>
+            <div><textarea class="q-input" id="q1_staff" rows="1" placeholder="e.g. 5 people (1 owner, 3 tradies, 1 admin)"></textarea></div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--primary);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q1.3</span></div>
+          <div class="q-text">What is your approximate monthly revenue?</div>
+          <div class="chip-group" id="revenueChips">
+            <div class="chip" onclick="toggleChip(this,'revenueChips')">Under $10K</div>
+            <div class="chip" onclick="toggleChip(this,'revenueChips')">$10K – $30K</div>
+            <div class="chip" onclick="toggleChip(this,'revenueChips')">$30K – $80K</div>
+            <div class="chip" onclick="toggleChip(this,'revenueChips')">$80K – $200K</div>
+            <div class="chip" onclick="toggleChip(this,'revenueChips')">$200K+</div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--primary);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q1.4</span></div>
+          <div class="q-text">What is the biggest challenge holding your business back right now?</div>
+          <textarea class="q-input" id="q1_4" rows="3" placeholder="e.g. We spend too much time on admin. Quoting takes 2 hours per job and we miss leads on weekends when no one is answering phones..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--primary);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q1.5</span></div>
+          <div class="q-text">What does a typical day/week look like for the owner?</div>
+          <textarea class="q-input" id="q1_5" rows="3" placeholder="e.g. Monday: respond to overnight enquiries, do quotes (3hrs). Tuesday: on-site all day. Friday: invoicing, chasing payments (2hrs)..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SECTION 2: CORE WORKFLOWS -->
+  <div class="section-card" id="sec1">
+    <div class="section-header" onclick="toggleSection(1)">
+      <div class="section-num" style="background: rgba(34,211,238,0.12); color: var(--cyan);">02</div>
+      <div class="section-meta">
+        <div class="section-title">Core Workflows — Step by Step</div>
+        <div class="section-desc">Map your most important recurring processes. Be specific — time per step matters.</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--cyan);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q2.1</span> REQUIRED</div>
+          <div class="q-text">What is your #1 most time-consuming workflow?</div>
+          <textarea class="q-input" id="q2_1" rows="2" placeholder="e.g. Handling incoming enquiries and sending quotes — takes 2–3 hours per day"></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--cyan);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q2.2</span> REQUIRED — Map the steps</div>
+          <div class="q-text">Break down this workflow step by step.</div>
+          <div class="q-hint">Click "AUTO?" to flag steps that could potentially be done by AI.</div>
+          <div class="substep-col-labels">
+            <div></div>
+            <div class="substep-col-label">Step description</div>
+            <div class="substep-col-label">Time (min)</div>
+            <div class="substep-col-label">Auto?</div>
+          </div>
+          <div class="substep-list" id="processSteps">
+            <div class="substep-row">
+              <div class="substep-num">1</div>
+              <input class="substep-input" type="text" placeholder="e.g. Receive phone call or message" oninput="updateAll()"/>
+              <input class="substep-time" type="number" placeholder="mins" min="0" oninput="updateAll()"/>
+              <div class="substep-auto" onclick="toggleAuto(this)">AUTO?</div>
+            </div>
+            <div class="substep-row">
+              <div class="substep-num">2</div>
+              <input class="substep-input" type="text" placeholder="e.g. Manually write job details" oninput="updateAll()"/>
+              <input class="substep-time" type="number" placeholder="mins" min="0" oninput="updateAll()"/>
+              <div class="substep-auto" onclick="toggleAuto(this)">AUTO?</div>
+            </div>
+            <div class="substep-row">
+              <div class="substep-num">3</div>
+              <input class="substep-input" type="text" placeholder="e.g. Call back to confirm details" oninput="updateAll()"/>
+              <input class="substep-time" type="number" placeholder="mins" min="0" oninput="updateAll()"/>
+              <div class="substep-auto" onclick="toggleAuto(this)">AUTO?</div>
+            </div>
+          </div>
+          <button class="add-step-btn" onclick="addStep()">+ Add Step</button>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--cyan);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q2.3</span></div>
+          <div class="q-text">What is the second most time-consuming workflow?</div>
+          <textarea class="q-input" id="q2_3" rows="2" placeholder="e.g. Following up unpaid invoices"></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--cyan);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q2.4</span></div>
+          <div class="q-text">Are there tasks that happen daily/weekly that feel repetitive and painful?</div>
+          <textarea class="q-input" id="q2_4" rows="3" placeholder="e.g. Every Monday I spend 1.5 hours copying info from emails into our job management system..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--cyan);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q2.5</span></div>
+          <div class="q-text">How many times per week does this core workflow run?</div>
+          <div class="q-input-row">
+            <input class="q-input-num" type="number" id="q2_volume" min="0" placeholder="0" oninput="updateAll()"/>
+            <span class="q-input-unit">times / week</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SECTION 3: DEPARTMENTS -->
+  <div class="section-card" id="sec2">
+    <div class="section-header" onclick="toggleSection(2)">
+      <div class="section-num" style="background: rgba(251,146,60,0.12); color: var(--orange);">03</div>
+      <div class="section-meta">
+        <div class="section-title">Department-by-Department Audit</div>
+        <div class="section-desc">Audit each area of the business — where is time being wasted?</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--orange);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q3.1</span> REQUIRED</div>
+          <div class="q-text">For each department below, describe the current manual work and hours spent weekly.</div>
+          <div class="q-hint">Leave blank for departments that don't apply.</div>
+          <div class="dept-grid" id="deptGrid">
+            <div class="dept-row">
+              <div class="dept-row-header">
+                <div class="dept-name"><span>Sales & Lead Management</span><span class="dept-badge" style="background: rgba(139,92,246,0.15); color: var(--primary-light);">FRONT OF HOUSE</span></div>
+              </div>
+              <div class="dept-fields">
+                <div class="dept-field"><label>Current manual tasks</label><textarea class="q-input" id="dept_sales_tasks" rows="3" placeholder="e.g. Responding to leads, qualifying enquiries..." oninput="updateAll()"></textarea></div>
+                <div class="dept-field"><label>Hours per week</label><input class="q-input" type="number" id="dept_sales_hrs" min="0" placeholder="0" oninput="updateAll()"/></div>
+                <div class="dept-field"><label>Biggest pain point</label><textarea class="q-input" id="dept_sales_pain" rows="3" placeholder="e.g. Leads come in at 9pm..." oninput="updateAll()"></textarea></div>
+              </div>
+            </div>
+            <div class="dept-row">
+              <div class="dept-row-header">
+                <div class="dept-name"><span>Quoting & Proposals</span><span class="dept-badge" style="background: rgba(34,211,238,0.12); color: var(--cyan);">REVENUE CRITICAL</span></div>
+              </div>
+              <div class="dept-fields">
+                <div class="dept-field"><label>Current manual tasks</label><textarea class="q-input" id="dept_quote_tasks" rows="3" placeholder="e.g. Site visit, measure up, manually type quote..." oninput="updateAll()"></textarea></div>
+                <div class="dept-field"><label>Hours per week</label><input class="q-input" type="number" id="dept_quote_hrs" min="0" placeholder="0" oninput="updateAll()"/></div>
+                <div class="dept-field"><label>Biggest pain point</label><textarea class="q-input" id="dept_quote_pain" rows="3" placeholder="e.g. Takes 45 mins per quote..." oninput="updateAll()"></textarea></div>
+              </div>
+            </div>
+            <div class="dept-row">
+              <div class="dept-row-header">
+                <div class="dept-name"><span>Scheduling & Dispatch</span><span class="dept-badge" style="background: rgba(251,146,60,0.12); color: var(--orange);">OPERATIONS</span></div>
+              </div>
+              <div class="dept-fields">
+                <div class="dept-field"><label>Current manual tasks</label><textarea class="q-input" id="dept_sched_tasks" rows="3" placeholder="e.g. Call each tradie to check availability..." oninput="updateAll()"></textarea></div>
+                <div class="dept-field"><label>Hours per week</label><input class="q-input" type="number" id="dept_sched_hrs" min="0" placeholder="0" oninput="updateAll()"/></div>
+                <div class="dept-field"><label>Biggest pain point</label><textarea class="q-input" id="dept_sched_pain" rows="3" placeholder="e.g. Double bookings happen..." oninput="updateAll()"></textarea></div>
+              </div>
+            </div>
+            <div class="dept-row">
+              <div class="dept-row-header">
+                <div class="dept-name"><span>Customer Communication</span><span class="dept-badge" style="background: rgba(96,165,250,0.12); color: var(--blue);">CLIENT FACING</span></div>
+              </div>
+              <div class="dept-fields">
+                <div class="dept-field"><label>Current manual tasks</label><textarea class="q-input" id="dept_comms_tasks" rows="3" placeholder="e.g. Sending job confirmations..." oninput="updateAll()"></textarea></div>
+                <div class="dept-field"><label>Hours per week</label><input class="q-input" type="number" id="dept_comms_hrs" min="0" placeholder="0" oninput="updateAll()"/></div>
+                <div class="dept-field"><label>Biggest pain point</label><textarea class="q-input" id="dept_comms_pain" rows="3" placeholder="e.g. Clients don't know when we're arriving..." oninput="updateAll()"></textarea></div>
+              </div>
+            </div>
+            <div class="dept-row">
+              <div class="dept-row-header">
+                <div class="dept-name"><span>Invoicing & Payments</span><span class="dept-badge" style="background: rgba(251,187,36,0.12); color: var(--yellow);">CASH FLOW</span></div>
+              </div>
+              <div class="dept-fields">
+                <div class="dept-field"><label>Current manual tasks</label><textarea class="q-input" id="dept_inv_tasks" rows="3" placeholder="e.g. Create invoice in Xero after job..." oninput="updateAll()"></textarea></div>
+                <div class="dept-field"><label>Hours per week</label><input class="q-input" type="number" id="dept_inv_hrs" min="0" placeholder="0" oninput="updateAll()"/></div>
+                <div class="dept-field"><label>Biggest pain point</label><textarea class="q-input" id="dept_inv_pain" rows="3" placeholder="e.g. Chasing late payments..." oninput="updateAll()"></textarea></div>
+              </div>
+            </div>
+            <div class="dept-row">
+              <div class="dept-row-header">
+                <div class="dept-name"><span>Marketing & Reviews</span><span class="dept-badge" style="background: rgba(244,114,182,0.12); color: var(--pink);">GROWTH</span></div>
+              </div>
+              <div class="dept-fields">
+                <div class="dept-field"><label>Current manual tasks</label><textarea class="q-input" id="dept_mkt_tasks" rows="3" placeholder="e.g. Posting on Facebook sometimes..." oninput="updateAll()"></textarea></div>
+                <div class="dept-field"><label>Hours per week</label><input class="q-input" type="number" id="dept_mkt_hrs" min="0" placeholder="0" oninput="updateAll()"/></div>
+                <div class="dept-field"><label>Biggest pain point</label><textarea class="q-input" id="dept_mkt_pain" rows="3" placeholder="e.g. No time for marketing..." oninput="updateAll()"></textarea></div>
+              </div>
+            </div>
+            <div class="dept-row">
+              <div class="dept-row-header">
+                <div class="dept-name"><span>Admin & Reporting</span><span class="dept-badge" style="background: rgba(139,92,246,0.12); color: var(--primary-light);">BACK OF HOUSE</span></div>
+              </div>
+              <div class="dept-fields">
+                <div class="dept-field"><label>Current manual tasks</label><textarea class="q-input" id="dept_admin_tasks" rows="3" placeholder="e.g. Weekly report to accountant..." oninput="updateAll()"></textarea></div>
+                <div class="dept-field"><label>Hours per week</label><input class="q-input" type="number" id="dept_admin_hrs" min="0" placeholder="0" oninput="updateAll()"/></div>
+                <div class="dept-field"><label>Biggest pain point</label><textarea class="q-input" id="dept_admin_pain" rows="3" placeholder="e.g. Spend Sunday night doing paperwork..." oninput="updateAll()"></textarea></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SECTION 4: PEOPLE & TIME -->
+  <div class="section-card" id="sec3">
+    <div class="section-header" onclick="toggleSection(3)">
+      <div class="section-num" style="background: rgba(96,165,250,0.12); color: var(--blue);">04</div>
+      <div class="section-meta">
+        <div class="section-title">People & Time Audit</div>
+        <div class="section-desc">Who does what, and how much does it cost?</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--blue);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q4.1</span> REQUIRED</div>
+          <div class="q-text">Average hourly cost of the person doing these manual tasks?</div>
+          <div class="q-input-row">
+            <span style="font-size:14px; color: var(--text-muted);">$</span>
+            <input class="q-input-num" type="number" id="q4_hourlyrate" min="0" placeholder="35" oninput="updateAll()"/>
+            <span class="q-input-unit">per hour (AUD)</span>
+          </div>
+          <div class="q-hint" style="margin-top: 8px;">Include super, payroll tax, overheads.</div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--blue);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q4.2</span></div>
+          <div class="q-text">Which tasks are done by the business owner personally?</div>
+          <div class="chip-group" id="ownerTaskChips">
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Answering phone calls</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Quoting jobs</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Scheduling</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Invoicing</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Chasing payments</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Responding to emails</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Social media / marketing</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Hiring / HR</div>
+            <div class="chip" onclick="toggleChip(this,'ownerTaskChips')">Bookkeeping</div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--blue);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q4.3</span> REQUIRED</div>
+          <div class="q-text">How many hours per week is the OWNER spending on admin/non-billable work?</div>
+          <div class="q-input-row">
+            <input class="q-input-num" type="number" id="q4_ownerhrs" min="0" placeholder="15" oninput="updateAll()"/>
+            <span class="q-input-unit">hours/week on non-billable admin</span>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--blue);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q4.4</span></div>
+          <div class="q-text">How much revenue do you lose per month from slow response time or missed leads?</div>
+          <div class="chip-group" id="missedRevChips">
+            <div class="chip" onclick="toggleChip(this,'missedRevChips')">Under $1K</div>
+            <div class="chip" onclick="toggleChip(this,'missedRevChips')">$1K – $3K</div>
+            <div class="chip" onclick="toggleChip(this,'missedRevChips')">$3K – $8K</div>
+            <div class="chip" onclick="toggleChip(this,'missedRevChips')">$8K – $20K</div>
+            <div class="chip" onclick="toggleChip(this,'missedRevChips')">$20K+</div>
+            <div class="chip" onclick="toggleChip(this,'missedRevChips')">Not sure</div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--blue);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q4.5</span></div>
+          <div class="q-text">If you freed up 10 hours/week from admin, what would you do?</div>
+          <textarea class="q-input" id="q4_5" rows="2" placeholder="e.g. Take on 3 more jobs per week, spend time with family..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SECTION 5: TECH STACK -->
+  <div class="section-card" id="sec4">
+    <div class="section-header" onclick="toggleSection(4)">
+      <div class="section-num" style="background: rgba(251,187,36,0.1); color: var(--yellow);">05</div>
+      <div class="section-meta">
+        <div class="section-title">Current Technology Stack</div>
+        <div class="section-desc">What tools are already in use, and what's missing?</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q5.1</span> REQUIRED</div>
+          <div class="q-text">What tools/software do you currently use?</div>
+          <div class="chip-group" id="toolChips">
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Xero</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">MYOB</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">QuickBooks</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">ServiceM8</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Tradify</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">simPRO</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">HubSpot</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Salesforce</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Gmail / Google Workspace</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Microsoft 365</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Mailchimp</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">WhatsApp Business</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Facebook / Instagram</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Google Sheets</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Excel spreadsheets</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Paper / whiteboard only</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Calendly</div>
+            <div class="chip" onclick="toggleChip(this,'toolChips')">Zapier / Make</div>
+          </div>
+          <textarea class="q-input" id="q5_1_other" rows="1" placeholder="Other tools not listed above..." style="margin-top: 10px;"></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q5.2</span></div>
+          <div class="q-text">Are any tools NOT connecting to each other (causing manual data re-entry)?</div>
+          <textarea class="q-input" id="q5_2" rows="2" placeholder="e.g. We get a booking in ServiceM8 but have to manually add it to Xero..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q5.3</span></div>
+          <div class="q-text">What tools are you locked into and cannot replace?</div>
+          <textarea class="q-input" id="q5_3" rows="2" placeholder="e.g. We have to keep Xero — accountant uses it."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q5.4</span></div>
+          <div class="q-text">How comfortable is the team with adopting new technology?</div>
+          <div class="rating-scale">
+            <div class="rating-btn" onclick="selectRating(this,'techComfort')">1</div>
+            <div class="rating-btn" onclick="selectRating(this,'techComfort')">2</div>
+            <div class="rating-btn" onclick="selectRating(this,'techComfort')">3</div>
+            <div class="rating-btn" onclick="selectRating(this,'techComfort')">4</div>
+            <div class="rating-btn" onclick="selectRating(this,'techComfort')">5</div>
+          </div>
+          <div class="rating-labels">
+            <span class="rating-label-text">1 = Very resistant</span>
+            <span class="rating-label-text">5 = Embrace tech easily</span>
+          </div>
+          <input type="hidden" id="q5_techComfort" value=""/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SECTION 6: PAIN POINTS -->
+  <div class="section-card" id="sec5">
+    <div class="section-header" onclick="toggleSection(5)">
+      <div class="section-num" style="background: rgba(248,113,113,0.12); color: var(--red);">06</div>
+      <div class="section-meta">
+        <div class="section-title">Pain Points — Deep Dive</div>
+        <div class="section-desc">Where does the business break down or lose money?</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--red);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q6.1</span> REQUIRED</div>
+          <div class="q-text">What keeps you up at night about the business?</div>
+          <textarea class="q-input" id="q6_1" rows="3" placeholder="e.g. I'm worried we're losing 3-4 jobs a week to competitors who respond faster..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--red);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q6.2</span></div>
+          <div class="q-text">Where do leads/customers fall through the cracks?</div>
+          <div class="chip-group" id="crackChips">
+            <div class="chip" onclick="toggleChip(this,'crackChips')">No response after hours</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">Slow quote turnaround</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">No follow-up after quote</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">No review requests</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">No repeat customer system</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">Missed calls / voicemails</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">Facebook DMs not answered</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">No appointment reminders</div>
+            <div class="chip" onclick="toggleChip(this,'crackChips')">Jobs lost due to no-shows</div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--red);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q6.3</span></div>
+          <div class="q-text">Are there tasks done inconsistently (sometimes done, sometimes forgotten)?</div>
+          <textarea class="q-input" id="q6_3" rows="2" placeholder="e.g. Following up quotes after 3 days — we mean to do it, but forget..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--red);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q6.4</span></div>
+          <div class="q-text">What errors or mistakes happen repeatedly?</div>
+          <textarea class="q-input" id="q6_4" rows="2" placeholder="e.g. Double booking tradies, invoices with wrong amounts..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--red);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q6.5</span></div>
+          <div class="q-text">How do you handle after-hours enquiries?</div>
+          <div class="chip-group" id="afterHoursChips">
+            <div class="chip" onclick="toggleChip(this,'afterHoursChips')">Owner checks phone personally</div>
+            <div class="chip" onclick="toggleChip(this,'afterHoursChips')">Missed until next morning</div>
+            <div class="chip" onclick="toggleChip(this,'afterHoursChips')">Voicemail only</div>
+            <div class="chip" onclick="toggleChip(this,'afterHoursChips')">Auto-reply email only</div>
+            <div class="chip" onclick="toggleChip(this,'afterHoursChips')">No system — completely missed</div>
+            <div class="chip" onclick="toggleChip(this,'afterHoursChips')">After-hours answering service</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SECTION 7: PRIORITIES -->
+  <div class="section-card" id="sec6">
+    <div class="section-header" onclick="toggleSection(6)">
+      <div class="section-num" style="background: rgba(52,211,153,0.12); color: var(--green);">07</div>
+      <div class="section-meta">
+        <div class="section-title">Automation Priorities</div>
+        <div class="section-desc">What would make the biggest difference if automated first?</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--green);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q7.1</span> REQUIRED</div>
+          <div class="q-text">If we could only automate ONE thing, what would have the biggest impact?</div>
+          <textarea class="q-input" id="q7_1" rows="2" placeholder="e.g. Automatically respond to all new enquiries 24/7..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--green);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q7.2</span></div>
+          <div class="q-text">Rank your top automation priorities</div>
+          <div class="priority-matrix">
+            <div class="matrix-cell">
+              <div class="matrix-cell-title"><div class="matrix-dot" style="background: var(--red);"></div>HIGH IMPACT / QUICK WIN</div>
+              <textarea class="q-input" id="mat_q1" rows="3" placeholder="e.g. AI voice receptionist, auto follow-up on quotes..."></textarea>
+            </div>
+            <div class="matrix-cell">
+              <div class="matrix-cell-title"><div class="matrix-dot" style="background: var(--orange);"></div>HIGH IMPACT / TAKES TIME</div>
+              <textarea class="q-input" id="mat_q2" rows="3" placeholder="e.g. Full CRM integration, job management automation..."></textarea>
+            </div>
+            <div class="matrix-cell">
+              <div class="matrix-cell-title"><div class="matrix-dot" style="background: var(--blue);"></div>LOW IMPACT / QUICK WIN</div>
+              <textarea class="q-input" id="mat_q3" rows="3" placeholder="e.g. Auto review requests, payment reminder texts..."></textarea>
+            </div>
+            <div class="matrix-cell">
+              <div class="matrix-cell-title"><div class="matrix-dot" style="background: var(--text-muted);"></div>LOW IMPACT / COMPLEX</div>
+              <textarea class="q-input" id="mat_q4" rows="3" placeholder="e.g. Complex inventory tracking, deep analytics..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--green);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q7.3</span></div>
+          <div class="q-text">What automations are you NOT comfortable with?</div>
+          <textarea class="q-input" id="q7_3" rows="2" placeholder="e.g. Complex pricing decisions must stay with me..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--green);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q7.4</span></div>
+          <div class="q-text">What does success look like in 90 days?</div>
+          <textarea class="q-input" id="q7_4" rows="2" placeholder="e.g. No missed leads, quotes out within 1 hour, I get back 10+ hours/week..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SECTION 8: BUDGET & ROI -->
+  <div class="section-card" id="sec7">
+    <div class="section-header" onclick="toggleSection(7)">
+      <div class="section-num" style="background: rgba(251,187,36,0.12); color: var(--yellow);">08</div>
+      <div class="section-meta">
+        <div class="section-title">Budget & ROI Expectations</div>
+        <div class="section-desc">Investment capacity and expected return</div>
+      </div>
+      <div class="section-toggle">&rsaquo;</div>
+    </div>
+    <div class="section-body">
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q8.1</span> REQUIRED</div>
+          <div class="q-text">Monthly budget for AI automation tools?</div>
+          <div class="chip-group" id="budgetChips">
+            <div class="chip" onclick="toggleChip(this,'budgetChips')">Under $200/mo</div>
+            <div class="chip" onclick="toggleChip(this,'budgetChips')">$200 – $500/mo</div>
+            <div class="chip" onclick="toggleChip(this,'budgetChips')">$500 – $1,000/mo</div>
+            <div class="chip" onclick="toggleChip(this,'budgetChips')">$1,000 – $2,500/mo</div>
+            <div class="chip" onclick="toggleChip(this,'budgetChips')">$2,500+/mo</div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q8.2</span></div>
+          <div class="q-text">Maximum one-time setup budget?</div>
+          <div class="chip-group" id="setupBudgetChips">
+            <div class="chip" onclick="toggleChip(this,'setupBudgetChips')">Under $1K</div>
+            <div class="chip" onclick="toggleChip(this,'setupBudgetChips')">$1K – $3K</div>
+            <div class="chip" onclick="toggleChip(this,'setupBudgetChips')">$3K – $7K</div>
+            <div class="chip" onclick="toggleChip(this,'setupBudgetChips')">$7K – $15K</div>
+            <div class="chip" onclick="toggleChip(this,'setupBudgetChips')">$15K+</div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q8.3</span></div>
+          <div class="q-text">What ROI would make this a no-brainer?</div>
+          <textarea class="q-input" id="q8_3" rows="2" placeholder="e.g. If I save 10 hours/week at $50/hour = $2,000/month..."></textarea>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q8.4</span></div>
+          <div class="q-text">Target timeline to see results?</div>
+          <div class="chip-group" id="timelineChips">
+            <div class="chip" onclick="toggleChip(this,'timelineChips')">Immediately (within 2 weeks)</div>
+            <div class="chip" onclick="toggleChip(this,'timelineChips')">Within 30 days</div>
+            <div class="chip" onclick="toggleChip(this,'timelineChips')">Within 90 days</div>
+            <div class="chip" onclick="toggleChip(this,'timelineChips')">6 months is fine</div>
+          </div>
+        </div>
+      </div>
+      <div class="question-block">
+        <div class="q-accent" style="background: var(--yellow);"></div>
+        <div class="q-content">
+          <div class="q-label"><span class="q-tag">Q8.5</span></div>
+          <div class="q-text">Additional notes for the PowerAI team</div>
+          <textarea class="q-input" id="q8_5" rows="3" placeholder="Any other context or special requirements..."></textarea>
+        </div>
+      </div>
+      <div class="section-sep" style="margin-top: 24px;">Estimated Savings Calculator</div>
+      <div class="saving-calc-row">
+        <div class="saving-cell">
+          <div class="saving-cell-label">Total Hours / Week (Manual)</div>
+          <div class="saving-cell-val" style="color: var(--red);" id="calcTotalHrs">&mdash;</div>
+          <div class="saving-cell-sub">across all departments</div>
+        </div>
+        <div class="saving-cell">
+          <div class="saving-cell-label">Est. Hours Automatable</div>
+          <div class="saving-cell-val" style="color: var(--green);" id="calcAutoHrs">&mdash;</div>
+          <div class="saving-cell-sub">~70% automation rate</div>
+        </div>
+        <div class="saving-cell">
+          <div class="saving-cell-label">Monthly Cost of Manual Work</div>
+          <div class="saving-cell-val" style="color: var(--cyan);" id="calcMonthlyCost">&mdash;</div>
+          <div class="saving-cell-sub">at your hourly rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ── GENERATE AREA ── -->
+<div class="generate-wrap">
+  <button class="btn-generate" onclick="generateAudit()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    Generate AI Automation Audit Report
+  </button>
+  <button class="btn-export" onclick="exportAudit()">Export .txt</button>
+  <button class="btn-clear" onclick="clearAll()">Reset All</button>
+</div>
+<!-- ── OUTPUT PANEL ── -->
+<div class="output-panel" id="outputPanel">
+  <div class="output-header">
+    <div class="output-title"><div class="live-dot"></div>Audit Report Generated</div>
+    <div class="output-actions">
+      <button class="btn-ghost" onclick="copyOutput()">Copy</button>
+      <button class="btn-ghost" onclick="exportAudit()">Export</button>
+    </div>
+  </div>
+  <pre class="output-body" id="outputBody"></pre>
+</div>
+<!-- ── FIXED SCORE BADGE ── -->
+<div class="completeness-bar">
+  <div class="score-ring">
+    <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#8B5CF6"/>
+          <stop offset="100%" stop-color="#22D3EE"/>
+        </linearGradient>
+      </defs>
+      <circle cx="22" cy="22" r="18" class="score-track" stroke-width="3" fill="none" stroke="#222234"/>
+      <circle cx="22" cy="22" r="18" id="scoreFill" class="score-fill"
+        stroke-dasharray="113" stroke-dashoffset="113"
+        stroke="url(#scoreGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="score-num" id="scoreNum">0%</div>
+  </div>
+  <div class="score-info">
+    <div class="score-info-label">Audit Progress</div>
+    <div class="score-status" id="scoreStatus">Not started</div>
+  </div>
+</div>
+<script>
+  // ══════════════════════════════════════════════════
+  // 3D ANIMATED WORLD MAP WITH MOUSE INTERACTION
+  // ══════════════════════════════════════════════════
+  (function() {
+    const canvas = document.getElementById('mapCanvas');
+    const container = document.getElementById('mapContainer');
+    const ctx = canvas.getContext('2d');
+    let W, H, mouseX = 0.5, mouseY = 0.5, targetRotX = 0, targetRotY = 0, rotX = 0, rotY = 0;
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      W = container.clientWidth;
+      H = container.clientHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // World map points (simplified continent outlines as lat/lng)
+    const continents = [
+      // North America
+      { points: [
+        [70,-165],[72,-130],[68,-100],[60,-95],[55,-80],[50,-65],[45,-65],[40,-75],[30,-85],
+        [25,-80],[25,-100],[30,-115],[35,-120],[40,-125],[48,-125],[55,-130],[60,-140],[65,-165]
+      ], color: 'rgba(139,92,246,0.35)' },
+      // South America
+      { points: [
+        [12,-75],[5,-77],[0,-80],[-5,-80],[-10,-77],[-15,-75],[-20,-60],[-25,-50],[-30,-50],
+        [-35,-57],[-40,-65],[-45,-70],[-50,-73],[-55,-70],[-55,-65],[-50,-70],[-40,-60],
+        [-30,-48],[-20,-40],[-10,-37],[-5,-50],[0,-75],[5,-75],[10,-72]
+      ], color: 'rgba(34,211,238,0.3)' },
+      // Europe
+      { points: [
+        [72,20],[70,30],[65,30],[60,30],[55,28],[50,5],[48,0],[44,-8],[36,-5],[36,0],
+        [38,10],[40,18],[42,28],[45,15],[48,15],[50,15],[52,20],[55,25],[58,28],[62,30],
+        [65,25],[70,25]
+      ], color: 'rgba(99,102,241,0.35)' },
+      // Africa
+      { points: [
+        [37,-5],[35,10],[30,32],[25,35],[20,37],[15,42],[10,42],[5,42],[0,42],[-5,40],
+        [-10,40],[-15,37],[-20,35],[-25,33],[-30,30],[-35,25],[-35,20],[-30,15],[-20,12],
+        [-10,12],[-5,8],[0,5],[5,-5],[10,-15],[15,-17],[20,-17],[25,-15],[30,-10],[35,-5]
+      ], color: 'rgba(251,146,60,0.3)' },
+      // Asia
+      { points: [
+        [70,40],[72,80],[72,120],[70,140],[65,140],[60,135],[55,130],[50,130],[45,130],
+        [40,128],[35,128],[30,120],[25,105],[20,100],[15,100],[10,105],[5,105],[0,105],
+        [-8,110],[0,100],[8,80],[15,75],[20,70],[25,60],[30,50],[35,45],[40,40],[45,35],
+        [50,40],[55,45],[60,50],[65,60],[68,50]
+      ], color: 'rgba(139,92,246,0.3)' },
+      // Australia
+      { points: [
+        [-12,130],[-15,125],[-20,118],[-25,115],[-30,115],[-33,118],[-35,120],[-38,145],
+        [-35,150],[-30,153],[-25,153],[-20,148],[-15,145],[-12,142],[-12,135]
+      ], color: 'rgba(34,211,238,0.35)' }
+    ];
+
+    // Network nodes (cities as lat/lng)
+    const nodes = [
+      { lat: 40.7, lng: -74, name: 'NYC', size: 4 },
+      { lat: 34, lng: -118, name: 'LA', size: 3 },
+      { lat: 51.5, lng: -0.1, name: 'LON', size: 4 },
+      { lat: 48.8, lng: 2.3, name: 'PAR', size: 3 },
+      { lat: 35.6, lng: 139.7, name: 'TKY', size: 3.5 },
+      { lat: 22.3, lng: 114, name: 'HKG', size: 3 },
+      { lat: 1.3, lng: 103.8, name: 'SIN', size: 3 },
+      { lat: -33.8, lng: 151.2, name: 'SYD', size: 4.5 },
+      { lat: -37.8, lng: 145, name: 'MEL', size: 4 },
+      { lat: 55.7, lng: 37.6, name: 'MOW', size: 2.5 },
+      { lat: 19.4, lng: -99.1, name: 'MEX', size: 2.5 },
+      { lat: -23.5, lng: -46.6, name: 'SAO', size: 3 },
+      { lat: 25, lng: 55, name: 'DXB', size: 3 },
+      { lat: 28.6, lng: 77.2, name: 'DEL', size: 3 },
+      { lat: 37.5, lng: 127, name: 'SEL', size: 3 },
+    ];
+
+    // Connections between nodes
+    const connections = [
+      [0,2],[0,1],[2,3],[2,9],[3,12],[4,5],[5,6],[6,7],[7,8],[4,14],
+      [0,10],[10,11],[12,13],[13,6],[5,14],[1,4],[2,12],[11,2],[8,6],[13,12]
+    ];
+
+    // Particles traveling along connections
+    const particles = [];
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        connIdx: Math.floor(Math.random() * connections.length),
+        t: Math.random(),
+        speed: 0.001 + Math.random() * 0.003,
+        size: 1 + Math.random() * 2,
+        alpha: 0.4 + Math.random() * 0.5
+      });
+    }
+
+    // Grid dots for background
+    const gridDots = [];
+    for (let lat = -70; lat <= 80; lat += 10) {
+      for (let lng = -170; lng <= 180; lng += 15) {
+        gridDots.push({ lat, lng });
+      }
+    }
+
+    function project(lat, lng) {
+      // Convert lat/lng to 3D sphere point
+      const phi = (90 - lat) * Math.PI / 180;
+      const theta = (lng + 180) * Math.PI / 180;
+      const R = Math.min(W, H) * 0.38;
+
+      let x = R * Math.sin(phi) * Math.cos(theta);
+      let y = R * Math.cos(phi);
+      let z = R * Math.sin(phi) * Math.sin(theta);
+
+      // Apply rotation from mouse
+      const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+      const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+
+      let x1 = x * cosY - z * sinY;
+      let z1 = x * sinY + z * cosY;
+      let y1 = y * cosX - z1 * sinX;
+      let z2 = y * sinX + z1 * cosX;
+
+      // Perspective
+      const perspective = 800;
+      const scale = perspective / (perspective + z2);
+
+      return {
+        x: W / 2 + x1 * scale,
+        y: H / 2 + y1 * scale,
+        z: z2,
+        scale: scale,
+        visible: z2 < R * 0.3 // front-facing check (generous)
+      };
+    }
+
+    function drawFrame(time) {
+      // Smooth mouse follow
+      targetRotY = (mouseX - 0.5) * 1.2;
+      targetRotX = (mouseY - 0.5) * 0.6;
+      rotY += (targetRotY - rotY) * 0.04;
+      rotX += (targetRotX - rotX) * 0.04;
+
+      // Add slow auto-rotation
+      const autoRot = time * 0.00005;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Background gradient
+      const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.5);
+      bgGrad.addColorStop(0, 'rgba(12,12,20,1)');
+      bgGrad.addColorStop(0.5, 'rgba(6,6,14,1)');
+      bgGrad.addColorStop(1, 'rgba(3,3,7,1)');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Save base rotation and add auto-rotation
+      const savedRotY = rotY;
+      rotY += autoRot;
+
+      // Draw grid dots
+      ctx.fillStyle = 'rgba(139,92,246,0.08)';
+      gridDots.forEach(d => {
+        const p = project(d.lat, d.lng);
+        if (p.visible && p.scale > 0.3) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 0.8 * p.scale, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // Draw continents
+      continents.forEach(cont => {
+        const projected = cont.points.map(p => project(p[0], p[1]));
+        const visibleCount = projected.filter(p => p.visible).length;
+        if (visibleCount < cont.points.length * 0.3) return;
+
+        ctx.beginPath();
+        let started = false;
+        projected.forEach((p, i) => {
+          if (p.visible) {
+            if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+            else ctx.lineTo(p.x, p.y);
+          }
+        });
+        ctx.closePath();
+        ctx.fillStyle = cont.color;
+        ctx.fill();
+        ctx.strokeStyle = cont.color.replace(/[\d.]+\)$/, '0.5)');
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      });
+
+      // Draw connections
+      connections.forEach(([a, b], idx) => {
+        const pa = project(nodes[a].lat, nodes[a].lng);
+        const pb = project(nodes[b].lat, nodes[b].lng);
+        if (!pa.visible || !pb.visible) return;
+
+        const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
+        grad.addColorStop(0, 'rgba(139,92,246,0.15)');
+        grad.addColorStop(0.5, 'rgba(34,211,238,0.2)');
+        grad.addColorStop(1, 'rgba(139,92,246,0.15)');
+        ctx.beginPath();
+        // Draw as curved line
+        const mx = (pa.x + pb.x) / 2;
+        const my = (pa.y + pb.y) / 2 - 20 * Math.min(pa.scale, pb.scale);
+        ctx.moveTo(pa.x, pa.y);
+        ctx.quadraticCurveTo(mx, my, pb.x, pb.y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      });
+
+      // Draw particles
+      particles.forEach(p => {
+        p.t += p.speed;
+        if (p.t > 1) { p.t = 0; p.connIdx = Math.floor(Math.random() * connections.length); }
+        const [a, b] = connections[p.connIdx];
+        const na = nodes[a], nb = nodes[b];
+        const lat = na.lat + (nb.lat - na.lat) * p.t;
+        const lng = na.lng + (nb.lng - na.lng) * p.t;
+        const pp = project(lat, lng);
+        if (!pp.visible) return;
+
+        ctx.beginPath();
+        ctx.arc(pp.x, pp.y, p.size * pp.scale, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(34,211,238,${p.alpha * pp.scale})`;
+        ctx.fill();
+        // Glow
+        ctx.beginPath();
+        ctx.arc(pp.x, pp.y, p.size * 3 * pp.scale, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(34,211,238,${p.alpha * 0.15 * pp.scale})`;
+        ctx.fill();
+      });
+
+      // Draw nodes
+      nodes.forEach(n => {
+        const p = project(n.lat, n.lng);
+        if (!p.visible) return;
+
+        // Glow
+        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, n.size * 6 * p.scale);
+        glow.addColorStop(0, 'rgba(139,92,246,0.3)');
+        glow.addColorStop(1, 'rgba(139,92,246,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, n.size * 6 * p.scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Node dot
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, n.size * p.scale, 0, Math.PI * 2);
+        const nodeGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, n.size * p.scale);
+        nodeGrad.addColorStop(0, '#A78BFA');
+        nodeGrad.addColorStop(1, '#8B5CF6');
+        ctx.fillStyle = nodeGrad;
+        ctx.fill();
+
+        // Pulse ring
+        const pulseR = n.size * (2 + Math.sin(time * 0.002 + n.lat) * 0.8) * p.scale;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(139,92,246,${0.2 + Math.sin(time * 0.002 + n.lat) * 0.1})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+
+        // Label
+        if (p.scale > 0.6) {
+          ctx.font = `${Math.round(8 * p.scale)}px Ubuntu, sans-serif`;
+          ctx.fillStyle = `rgba(167,139,250,${0.6 * p.scale})`;
+          ctx.textAlign = 'center';
+          ctx.fillText(n.name, p.x, p.y - n.size * 2.5 * p.scale);
+        }
+      });
+
+      // Restore rotation
+      rotY = savedRotY;
+
+      requestAnimationFrame(drawFrame);
+    }
+
+    // Mouse tracking on map container
+    container.addEventListener('mousemove', (e) => {
+      const rect = container.getBoundingClientRect();
+      mouseX = (e.clientX - rect.left) / rect.width;
+      mouseY = (e.clientY - rect.top) / rect.height;
+    });
+    container.addEventListener('mouseleave', () => {
+      mouseX = 0.5;
+      mouseY = 0.5;
+    });
+
+    // Touch support
+    container.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const rect = container.getBoundingClientRect();
+      const touch = e.touches[0];
+      mouseX = (touch.clientX - rect.left) / rect.width;
+      mouseY = (touch.clientY - rect.top) / rect.height;
+    }, { passive: false });
+
+    requestAnimationFrame(drawFrame);
+  })();
+
+  // ══════════════════════════════════════════════════
+  // FORM LOGIC
+  // ══════════════════════════════════════════════════
+  function toggleSection(idx) {
+    const cards = document.querySelectorAll('.section-card');
+    const card = cards[idx];
+    const isOpen = card.classList.contains('open');
+    cards.forEach(c => { c.classList.remove('open', 'active'); });
+    if (!isOpen) { card.classList.add('open', 'active'); }
+    updateProgress();
+  }
+  function scrollToSection(idx) {
+    const cards = document.querySelectorAll('.section-card');
+    const card = cards[idx];
+    cards.forEach(c => c.classList.remove('open', 'active'));
+    card.classList.add('open', 'active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateProgress();
+  }
+  function toggleChip(el, groupId) {
+    el.classList.toggle('selected');
+    updateAll();
+  }
+  function selectRating(btn, key) {
+    const parent = btn.closest('.rating-scale');
+    parent.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const idx = Array.from(parent.querySelectorAll('.rating-btn')).indexOf(btn) + 1;
+    document.getElementById('q5_' + key).value = idx;
+    updateAll();
+  }
+  function addStep() {
+    const list = document.getElementById('processSteps');
+    const num = list.children.length + 1;
+    const row = document.createElement('div');
+    row.className = 'substep-row';
+    row.innerHTML = '<div class="substep-num">' + num + '</div><input class="substep-input" type="text" placeholder="Step ' + num + '..." oninput="updateAll()"/><input class="substep-time" type="number" placeholder="mins" min="0" oninput="updateAll()"/><div class="substep-auto" onclick="toggleAuto(this)">AUTO?</div>';
+    list.appendChild(row);
+    row.querySelector('input').focus();
+  }
+  function toggleAuto(el) {
+    el.classList.toggle('automatable');
+    el.textContent = el.classList.contains('automatable') ? 'AUTO' : 'AUTO?';
+    updateAll();
+  }
+  function getAllHrs() {
+    const deptIds = ['sales','quote','sched','comms','inv','mkt','admin'];
+    let total = 0;
+    deptIds.forEach(d => { total += parseFloat(document.getElementById('dept_'+d+'_hrs')?.value) || 0; });
+    return total;
+  }
+  function getHourlyRate() { return parseFloat(document.getElementById('q4_hourlyrate')?.value) || 35; }
+  function countAutoSteps() { return document.querySelectorAll('.substep-auto.automatable').length; }
+  function countOpps() {
+    const crackChips = document.querySelectorAll('#crackChips .chip.selected').length;
+    const autoSteps = countAutoSteps();
+    const deptFilled = ['sales','quote','sched','comms','inv','mkt','admin'].filter(d => {
+      const t = document.getElementById('dept_'+d+'_tasks')?.value?.trim();
+      return t && t.length > 5;
+    }).length;
+    return autoSteps + Math.floor(deptFilled * 1.5) + Math.floor(crackChips * 0.8);
+  }
+  function updateAll() {
+    const totalHrs = getAllHrs();
+    const ownerHrs = parseFloat(document.getElementById('q4_ownerhrs')?.value) || 0;
+    const allHrs = totalHrs + ownerHrs;
+    const autoHrs = Math.round(allHrs * 0.7);
+    const rate = getHourlyRate();
+    const monthlyCost = Math.round(allHrs * 4.33 * rate);
+    const monthlySaving = Math.round(autoHrs * 4.33 * rate);
+    const opps = countOpps();
+    const fields = document.querySelectorAll('.q-input, .substep-input');
+    const chips = document.querySelectorAll('.chip.selected');
+    let filled = 0, total = Math.max(fields.length, 1);
+    fields.forEach(f => { if (f.value.trim().length > 3) filled++; });
+    filled += Math.min(chips.length, 10);
+    total += 10;
+    const pct = Math.round((filled / total) * 100);
+    const circumference = 113;
+    const offset = circumference - (pct / 100) * circumference;
+    document.getElementById('scoreFill').style.strokeDashoffset = offset;
+    document.getElementById('scoreNum').textContent = pct + '%';
+    const statuses = ['Not started','Just beginning...','Getting there','Almost ready','Ready to generate!'];
+    const si = pct === 0 ? 0 : pct < 25 ? 1 : pct < 55 ? 2 : pct < 85 ? 3 : 4;
+    document.getElementById('scoreStatus').textContent = statuses[si];
+    const bigCirc = 264;
+    const bigOffset = bigCirc - (pct / 100) * bigCirc;
+    document.getElementById('bigScoreFill').style.strokeDashoffset = bigOffset;
+    document.getElementById('bigScoreNum').textContent = pct + '%';
+    document.getElementById('bigScoreStatus').textContent = statuses[si];
+    document.getElementById('metricHrsSaved').textContent = autoHrs || 0;
+    document.getElementById('metricSaving').textContent = monthlySaving ? monthlySaving.toLocaleString() : '0';
+    document.getElementById('metricOpps').textContent = opps || 0;
+    const monthlyToolCost = 500;
+    const roi12 = monthlySaving > 0 ? ((monthlySaving * 12) / (monthlyToolCost * 12)).toFixed(1) : '0';
+    document.getElementById('metricROI').textContent = roi12;
+    const maxHrs = 80, maxSaving = 20000, maxOpps = 20, maxROI = 10;
+    document.getElementById('barHrs').style.width = Math.min((autoHrs/maxHrs)*100, 100) + '%';
+    document.getElementById('barSaving').style.width = Math.min((monthlySaving/maxSaving)*100, 100) + '%';
+    document.getElementById('barOpps').style.width = Math.min((opps/maxOpps)*100, 100) + '%';
+    document.getElementById('barROI').style.width = Math.min((parseFloat(roi12)/maxROI)*100, 100) + '%';
+    document.getElementById('calcTotalHrs').textContent = allHrs ? allHrs + ' hrs/wk' : '\u2014';
+    document.getElementById('calcAutoHrs').textContent = autoHrs ? autoHrs + ' hrs/wk' : '\u2014';
+    document.getElementById('calcMonthlyCost').textContent = monthlyCost ? '$' + monthlyCost.toLocaleString() + '/mo' : '\u2014';
+    updateProgress();
+  }
+  function updateProgress() {
+    const sections = document.querySelectorAll('.section-card');
+    const steps = document.querySelectorAll('.progress-step');
+    sections.forEach((card, i) => {
+      const step = steps[i]; if (!step) return;
+      const inputs = card.querySelectorAll('.q-input, .substep-input');
+      let anyFilled = false;
+      inputs.forEach(f => { if (f.value.trim().length > 2) anyFilled = true; });
+      const anyChip = card.querySelector('.chip.selected');
+      if (anyFilled || anyChip) step.classList.add('done');
+      if (card.classList.contains('open')) step.classList.add('active');
+      else step.classList.remove('active');
+    });
+  }
+  function getChips(groupId) {
+    const g = document.getElementById(groupId);
+    if (!g) return [];
+    return Array.from(g.querySelectorAll('.chip.selected')).map(c => c.textContent.trim());
+  }
+  function getSteps() {
+    const rows = document.querySelectorAll('#processSteps .substep-row');
+    return Array.from(rows).map((row, i) => {
+      const desc = row.querySelector('.substep-input')?.value?.trim();
+      const time = row.querySelector('.substep-time')?.value?.trim();
+      const auto = row.querySelector('.substep-auto')?.classList?.contains('automatable');
+      if (!desc) return null;
+      return '   ' + (i+1) + '. ' + desc + (time ? ' ['+time+' min]' : '') + (auto ? ' AUTOMATABLE' : '');
+    }).filter(Boolean).join('\n');
+  }
+  function deptSummary() {
+    const depts = [{id:'sales',name:'Sales & Leads'},{id:'quote',name:'Quoting'},{id:'sched',name:'Scheduling'},{id:'comms',name:'Customer Comms'},{id:'inv',name:'Invoicing'},{id:'mkt',name:'Marketing'},{id:'admin',name:'Admin/Reporting'}];
+    return depts.map(d => {
+      const tasks = document.getElementById('dept_'+d.id+'_tasks')?.value?.trim() || '';
+      const hrs = document.getElementById('dept_'+d.id+'_hrs')?.value?.trim() || '0';
+      const pain = document.getElementById('dept_'+d.id+'_pain')?.value?.trim() || '';
+      if (!tasks && !pain) return null;
+      return '  ' + d.name.padEnd(18) + ' | ' + (hrs+'h/wk').padEnd(8) + ' | ' + (pain || tasks);
+    }).filter(Boolean).join('\n');
+  }
+  function generateAudit() {
+    var d = new Date();
+    var dateStr = d.toLocaleDateString('en-AU', {day:'numeric',month:'long',year:'numeric'});
+    var business = document.getElementById('q1_1').value.trim() || '[Not specified]';
+    var years = document.getElementById('q1_years').value.trim() || '[Not specified]';
+    var staff = document.getElementById('q1_staff').value.trim() || '[Not specified]';
+    var revenue = getChips('revenueChips').join(', ') || '[Not specified]';
+    var challenge = document.getElementById('q1_4').value.trim() || '[Not specified]';
+    var ownerDay = document.getElementById('q1_5').value.trim() || '[Not specified]';
+    var mainFlow = document.getElementById('q2_1').value.trim() || '[Not specified]';
+    var steps = getSteps() || '   [No steps entered]';
+    var autoStepCount = document.querySelectorAll('.substep-auto.automatable').length;
+    var secondFlow = document.getElementById('q2_3').value.trim() || '[Not specified]';
+    var repetitive = document.getElementById('q2_4').value.trim() || '[Not specified]';
+    var flowVolume = document.getElementById('q2_volume').value.trim() || '[Not specified]';
+    var depts = deptSummary() || '  [Department data not entered]';
+    var totalHrs = getAllHrs();
+    var ownerHrs = parseFloat(document.getElementById('q4_ownerhrs')?.value) || 0;
+    var allHrs = totalHrs + ownerHrs;
+    var hourlyRate = getHourlyRate();
+    var ownerTasks = getChips('ownerTaskChips').join(', ') || '[Not specified]';
+    var missedRev = getChips('missedRevChips').join(', ') || '[Not specified]';
+    var freeTime = document.getElementById('q4_5').value.trim() || '[Not specified]';
+    var tools = [].concat(getChips('toolChips'), [document.getElementById('q5_1_other').value.trim()]).filter(Boolean).join(', ') || '[None listed]';
+    var toolGaps = document.getElementById('q5_2').value.trim() || '[Not specified]';
+    var lockedTools = document.getElementById('q5_3').value.trim() || '[None]';
+    var techComfort = document.getElementById('q5_techComfort').value || '[Not rated]';
+    var nightmares = document.getElementById('q6_1').value.trim() || '[Not specified]';
+    var cracks = getChips('crackChips').join(', ') || '[Not selected]';
+    var inconsistent = document.getElementById('q6_3').value.trim() || '[Not specified]';
+    var errors = document.getElementById('q6_4').value.trim() || '[Not specified]';
+    var afterHours = getChips('afterHoursChips').join(', ') || '[Not selected]';
+    var topPriority = document.getElementById('q7_1').value.trim() || '[Not specified]';
+    var quickWins = document.getElementById('mat_q1').value.trim() || '[Not specified]';
+    var bigImpact = document.getElementById('mat_q2').value.trim() || '[Not specified]';
+    var keepHuman = document.getElementById('q7_3').value.trim() || '[Not specified]';
+    var success90 = document.getElementById('q7_4').value.trim() || '[Not specified]';
+    var monthlyBudget = getChips('budgetChips').join(', ') || '[Not specified]';
+    var setupBudget = getChips('setupBudgetChips').join(', ') || '[Not specified]';
+    var roi = document.getElementById('q8_3').value.trim() || '[Not specified]';
+    var timeline = getChips('timelineChips').join(', ') || '[Not specified]';
+    var notes = document.getElementById('q8_5').value.trim() || '[None]';
+    var autoHrs = Math.round(allHrs * 0.7);
+    var monthlySaving = Math.round(autoHrs * 4.33 * hourlyRate);
+    var opps = countOpps();
+    var report = [
+      '  AI AUTOMATION AUDIT REPORT — POWERAI',
+      '  power-ai.com.au  |  +61 3 6163 1234',
+      '  Prepared for: ' + business,
+      '  Date: ' + dateStr,
+      '',
+      'EXECUTIVE SUMMARY',
+      '  Total Manual Hours (weekly)   ' + allHrs + 'h',
+      '  Estimated Automatable Hours   ~' + autoHrs + 'h',
+      '  Automation Opportunities      ' + opps + ' identified',
+      '  Est. Monthly Time Saving      $' + monthlySaving.toLocaleString() + ' value',
+      '',
+      'SECTION 1 — BUSINESS OVERVIEW',
+      '  Business:           ' + business,
+      '  Time in operation:  ' + years,
+      '  Team size:          ' + staff,
+      '  Revenue range:      ' + revenue,
+      '  Core challenge:     ' + challenge,
+      '  Owner typical week: ' + ownerDay,
+      '',
+      'SECTION 2 — CORE WORKFLOW AUDIT',
+      '  Primary Workflow:   ' + mainFlow,
+      '  Weekly Volume:      ' + flowVolume + 'x/week',
+      '  Steps:', steps,
+      '  Automatable Steps:  ' + autoStepCount,
+      '  Second Workflow:    ' + secondFlow,
+      '  Repetitive Tasks:   ' + repetitive,
+      '',
+      'SECTION 3 — DEPARTMENT AUDIT', depts,
+      '  TOTAL DEPT HOURS:   ' + totalHrs + 'h/week',
+      '  OWNER ADMIN HOURS:  ' + ownerHrs + 'h/week',
+      '  GRAND TOTAL:        ' + allHrs + 'h/week',
+      '',
+      'SECTION 4 — PEOPLE & TIME COST',
+      '  Owner handles:      ' + ownerTasks,
+      '  Hourly cost:        $' + hourlyRate + '/hr',
+      '  Lost revenue:       ' + missedRev + '/month',
+      '  If time freed:      ' + freeTime,
+      '',
+      'SECTION 5 — TECHNOLOGY STACK',
+      '  Current tools:      ' + tools,
+      '  Integration gaps:   ' + toolGaps,
+      '  Locked tools:       ' + lockedTools,
+      '  Tech comfort (1-5): ' + techComfort + '/5',
+      '',
+      'SECTION 6 — PAIN POINTS',
+      '  Biggest concern:    ' + nightmares,
+      '  Cracks:             ' + cracks,
+      '  Inconsistent tasks: ' + inconsistent,
+      '  Recurring errors:   ' + errors,
+      '  After-hours:        ' + afterHours,
+      '',
+      'SECTION 7 — AUTOMATION PRIORITIES',
+      '  #1 Opportunity:     ' + topPriority,
+      '  Quick Wins:         ' + quickWins,
+      '  Big Plays:          ' + bigImpact,
+      '  Must stay human:    ' + keepHuman,
+      '  90-day success:     ' + success90,
+      '',
+      'SECTION 8 — BUDGET & ROI',
+      '  Monthly budget:     ' + monthlyBudget,
+      '  Setup budget:       ' + setupBudget,
+      '  ROI target:         ' + roi,
+      '  Timeline:           ' + timeline,
+      '  Notes:              ' + notes,
+      '',
+      'ESTIMATED SAVINGS',
+      '  Weekly manual hours:    ' + allHrs + 'h',
+      '  Automation rate (70%):  ~' + autoHrs + 'h saved/week',
+      '  Monthly hours saved:    ~' + Math.round(autoHrs * 4.33) + 'h/month',
+      '  Monthly dollar value:   ~$' + monthlySaving.toLocaleString() + '/month',
+      '  Annual value:           ~$' + (monthlySaving*12).toLocaleString() + '/year',
+      '',
+      'RECOMMENDED AUTOMATION ROADMAP',
+      '  PHASE 1 — QUICK WINS (Week 1-2)',
+      '    AI Voice Receptionist',
+      '    After-hours auto-response',
+      '    Automated quote follow-up',
+      '  PHASE 2 — CORE AUTOMATION (Month 1-2)',
+      '    Lead qualification + CRM',
+      '    Scheduling automation + reminders',
+      '    Automated invoice dispatch',
+      '  PHASE 3 — GROWTH LAYER (Month 2-3)',
+      '    Review request sequence',
+      '    Re-engagement campaigns',
+      '    Reporting dashboard',
+      '',
+      'NEXT STEPS — POWERAI',
+      '  power-ai.com.au  |  +61 404 490 212',
+      '  kara@power-ai.com.au'
+    ].join('\n');
+    document.getElementById('outputBody').textContent = report;
+    var panel = document.getElementById('outputPanel');
+    panel.classList.add('visible');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateAll();
+  }
+  function copyOutput() {
+    var text = document.getElementById('outputBody').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      event.target.textContent = 'Copied!';
+      setTimeout(function() { event.target.textContent = 'Copy'; }, 2000);
+    });
+  }
+  function exportAudit() {
+    generateAudit();
+    var text = document.getElementById('outputBody').textContent;
+    var blob = new Blob([text], {type: 'text/plain'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'PowerAI_Automation_Audit.txt';
+    a.click();
+  }
+  function clearAll() {
+    document.querySelectorAll('.q-input, .substep-input, .substep-time, .q-input-num').forEach(function(f) { f.value = ''; });
+    document.querySelectorAll('.chip.selected').forEach(function(c) { c.classList.remove('selected'); });
+    document.querySelectorAll('.rating-btn.selected').forEach(function(b) { b.classList.remove('selected'); });
+    document.querySelectorAll('.substep-auto.automatable').forEach(function(a) { a.classList.remove('automatable'); a.textContent = 'AUTO?'; });
+    document.getElementById('outputPanel').classList.remove('visible');
+    document.getElementById('q5_techComfort').value = '';
+    updateAll();
+  }
+  document.addEventListener('input', updateAll);
+  document.addEventListener('change', updateAll);
+  updateAll();
+</script>
+</body>
+</html>
