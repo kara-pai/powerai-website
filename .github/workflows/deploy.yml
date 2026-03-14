@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [master, claude/build-landing-page-2TifH]
+    branches: [master, claude/build-landing-page-2TifH, claude/3d-animated-map-UN0hk]
 
 permissions:
   contents: read
